@@ -2,7 +2,7 @@
 
 #    a wrapper for pancratz-tuitman deformation code
 #
-#    Copyright (C) 2017, Jean-Pierre Flori
+#    Copyright (C) 2017, Jean-Pierre Flori, Edgar Costa
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
