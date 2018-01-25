@@ -1,5 +1,3 @@
-# distutils: libraries = deformation
-
 #    a wrapper for pancratz-tuitman deformation code
 #
 #    Copyright (C) 2017, Jean-Pierre Flori, Edgar Costa
@@ -36,61 +34,20 @@ from sage.libs.flint.padic cimport *
 from sage.libs.flint.padic_poly cimport *
 from sage.libs.flint.qadic cimport *
 
-cdef extern from "deformation/generics.h":
-    ctypedef struct __ctx_struct:
-        pass
-
-    ctypedef __ctx_struct ctx_t[1]
-
-    void ctx_init_fmpz_poly_q(ctx_t ctx)
-    void ctx_clear(ctx_t ctx)
-
-cdef extern from "deformation/mon.h":
-    ctypedef unsigned long mon_t
-
-    void mon_init(mon_t)
-    void mon_clear(mon_t)
-    void mon_one(mon_t)
-
-    void mon_set_exp(mon_t x, long i, long e)
-
-    void mon_print(mon_t, int)
-
-cdef extern from "deformation/mpoly.h":
-    ctypedef struct __mpoly_struct:
-        pass
-
-    ctypedef __mpoly_struct mpoly_t[1]
-
-    void mpoly_init(mpoly_t, long n, ctx_t ctx)
-    void mpoly_clear(mpoly_t, ctx_t ctx)
-    void mpoly_zero(mpoly_t, ctx_t ctx)
-
-    void mpoly_set_coeff(mpoly_t rop, const mon_t m, const void *c, 
-                         const ctx_t ctx)
-
-    void mpoly_print(mpoly_t, ctx_t)
-
-cdef extern from "deformation/deformation.h":
-    ctypedef struct prec_t:
-        pass
-
-    void frob_ret(fmpz_poly_t cp,
-              const mpoly_t P, const ctx_t ctxFracQt, 
-              const qadic_t t1, const qadic_ctx_t Qq, 
-              prec_t *prec, const prec_t *prec_in,
-              int verbose)
-
-def deformation(f, t0, verbose = True):
+def deformation(f, t0, verbose = False):
     """
     Input: 
         -- ``f`` -- a homogeneous polynomial in n + 1 variables with coefficients in QQ(t), such that at $t = 0$ $f$ is a diagonal polynomial, i.e., the only nonzero monomials are powers of the generators of the polynomial ring.
        -- ``t_0`` -- an element of the finite field with q elements.
-       -- ``verbose`` -- a boolean # are we really using this? #FIXME
+       -- ``verbose`` -- a boolean
+
     Output:
         The characteristic polynomial of Frobenius acting on the $n$-th cohomology group of the complement of the hypersurface defined by f(t = t_0) over F_q.
     
-    Examples:
+    Examples::
+
+    sage: from pydeformation import deformation
+
     sage: R.<t> = QQ[]
     sage: S = R.fraction_field()
     sage: T.<x0, x1, x2> = S[]
@@ -99,7 +56,7 @@ def deformation(f, t0, verbose = True):
     sage: K = GF(p, modulus=conway_polynomial(p,1))
     sage: K.is_conway= lambda : True # hacky thing for the moment
     sage: t0 = K(-1)
-    sage: deformation(f,t0,verbose=False)
+    sage: deformation(f, t0)
         4750104241*x^12 + 4981816643*x^11 + 2659041101*x^10 + 943873095*x^9 + 249485615*x^8 + 52201774*x^7 + 8953622*x^6 + 1273214*x^5 + 148415*x^4 + 13695*x^3 + 941*x^2 + 43*x + 1
 
     sage: R.<t> = QQ[]
@@ -110,8 +67,7 @@ def deformation(f, t0, verbose = True):
     sage: K = GF(p,modulus=conway_polynomial(p,1))
     sage: K.is_conway= lambda : True
     sage: t0 = K(1)
-    sage: 
-    sage: deformation(f, t0, verbose = False)
+    sage: deformation(f, t0)
         6321363049*x^6 + 441025329*x^5 + 20512806*x^4 + 556549*x^3 + 11094*x^2 + 129*x + 1
 
     sage: R.<t> = QQ[]
@@ -122,10 +78,8 @@ def deformation(f, t0, verbose = True):
     sage: K = GF(p,modulus=conway_polynomial(p,1))
     sage: K.is_conway= lambda : True
     sage: t0 = K(1)
-    sage: deformation(f, t0, verbose = False)
+    sage: deformation(f, t0)
     -20083415214428110320965436874242043*x^21 + 119479484780264582763991241544977*x^20 + 100534534762252228203104681046302*x^19 - 834165241103179642680896617306*x^18 - 225003300376177017932433136047*x^17 + 2487646096419799283278902381*x^16 + 296132512235307123091919592*x^15 - 4247548915225822821120696*x^14 - 253423978516239259535142*x^13 + 4644610109877171089586*x^12 + 147044525659586030196*x^11 - 3419640131618279772*x^10 - 58417624987449798*x^9 + 1723873631640594*x^8 + 15626409457128*x^7 - 589209839544*x^6 - 2676921183*x^5 + 130948029*x^4 + 262558*x^3 - 17114*x^2 - 11*x + 1
-
-    
     """
     # Only Z_p/QQ(t) for hypersurface definition.
     cdef ctx_t ctxFracQt

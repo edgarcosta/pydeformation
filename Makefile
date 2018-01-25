@@ -1,16 +1,48 @@
-all: cythonized
+# This Makefile is for convenience as a reminder and shortcut for the most used commands
 
-sage_local:
-	@if [ -z $(SAGE_LOCAL) ]; then echo "make should be run from within a Sage shell" >&2; exit 1; fi
+# Package folder
+PACKAGE = pydeformation
 
-CYTHON_SOURCES = $(wildcard *.pyx) $(wildcard *.pxd)
+# change to your sage command if needed
+SAGE = sage
 
-cythonized: $(CYTHON_SOURCES)
-	python setup.py build_ext
-	cp cythonized/lib.*/*.so ./
+all: install test
 
-clean:
-	rm -rf cythonized
-	rm -rf *.so
+build:
+	$(SAGE) -python setup.py build_ext
 
-.PHONY: clean sage_local 
+install:
+	$(SAGE) -python setup.py install
+
+sdist:
+	$(SAGE) -python setup.py sdist
+
+test:
+	$(SAGE) -python setup.py test
+
+pip-install:
+	$(SAGE) -pip install --upgrade --no-index -v .
+
+pip-uninstall:
+	$(SAGE) -pip uninstall .
+
+pip-develop:
+	$(SAGE) -pip install --upgrade -e .
+
+coverage:
+	$(SAGE) -coverage $(PACKAGE)/*
+
+doc:
+	cd docs && $(SAGE) -sh -c "make html"
+
+doc-pdf:
+	cd docs && $(SAGE) -sh -c "make latexpdf"
+
+clean: clean-doc
+	rm -rf build dist *.egg-info
+	rm -rf $(PACKAGE)/*.c
+
+clean-doc:
+	cd docs && make clean
+
+.PHONY: all build install test coverage sdist pip-install pip-uninstall pip-develop clean clean-doc doc doc-pdf
